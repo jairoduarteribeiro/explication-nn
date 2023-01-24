@@ -14,10 +14,13 @@ def transform(x, x_columns=None):
     return pd.DataFrame(x, columns=x_columns)
 
 
-def split_dataset(x, y):
-    x_train, x_test, y_train, y_test = \
-        train_test_split(x, y, test_size=0.2, random_state=42, shuffle=True, stratify=y)
-    return (x_train, y_train), (x_test, y_test)
+def split_dataset(x, y, with_validation=False):
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.8, random_state=42, stratify=y)
+    if not with_validation:
+        return (x_train, y_train), (x_test, y_test)
+    x_val, x_test, y_val, y_test = \
+        train_test_split(x_test, y_test, test_size=0.5, random_state=42, stratify=y_test)
+    return (x_train, y_train), (x_val, y_val), (x_test, y_test)
 
 
 def save_dataset(x, y, csv_path):
