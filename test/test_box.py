@@ -1,9 +1,16 @@
 import unittest
 from numpy.testing import assert_array_equal
-from src.box import box_forward, box_check_solution
+from src.box import box_fix_input_bounds, box_forward, box_check_solution
 
 
 class TestBox(unittest.TestCase):
+    def test_box_fix_input_bounds(self):
+        network_inputs = [1.0, 2.0, 3.0, 4.0]
+        input_bounds = [2.5, 3.5]
+        input_index = 2
+        fixed_bounds = box_fix_input_bounds(network_inputs, input_bounds, input_index)
+        assert_array_equal(fixed_bounds, [[1.0, 1.0], [2.0, 2.0], [2.5, 3.5], [4.0, 4.0]])
+
     def test_box_forward_with_relu(self):
         input_bounds = [[1, 2], [3, 4]]
         input_weights = [[1, 1], [1, -1], [-1, 1]]
