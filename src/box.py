@@ -1,6 +1,13 @@
 import numpy as np
 
 
+def box_fix_input_bounds(network_inputs, input_bounds, input_index):
+    fixed_bounds = np.reshape(network_inputs, (-1, 1))
+    fixed_bounds = np.repeat(fixed_bounds, 2, axis=1)
+    fixed_bounds[input_index] = input_bounds
+    return fixed_bounds
+
+
 def box_forward(input_bounds, input_weights, input_biases, apply_relu=True):
     flipped_bounds = np.flip(input_bounds, axis=1)
     input_bounds = np.concatenate((input_bounds, flipped_bounds), axis=0)
