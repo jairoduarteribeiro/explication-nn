@@ -26,3 +26,10 @@ def split_dataset(x, y, with_validation=False):
 def save_dataset(x, y, csv_path):
     csv = pd.concat([x, y], axis=1)
     csv.to_csv(csv_path, index=False)
+
+
+def read_dataset(csv_path):
+    df = pd.read_csv(csv_path)
+    x = df.iloc[:, 1:-1]
+    y = df.iloc[:, -1]
+    return x, y
