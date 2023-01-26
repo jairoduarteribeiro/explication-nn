@@ -22,9 +22,9 @@ def get_input_domain_and_bounds(dataframe):
 def get_input_variables(input_domain, input_bounds):
     with Model() as model:
         input_variables = []
-        for idx, (domain, bounds) in enumerate(zip(input_domain, input_bounds)):
+        for index, (domain, bounds) in enumerate(zip(input_domain, input_bounds)):
             lower_bound, upper_bound = bounds
-            name = f'x_{idx}'
+            name = f'x_{index}'
             if domain == 'C':
                 input_variables.append(model.continuous_var(lb=lower_bound, ub=upper_bound, name=name))
             elif domain == 'I':
@@ -52,3 +52,19 @@ def get_decision_variables(layer_index, number_variables):
 def get_output_variables(number_variables):
     with Model() as model:
         return model.continuous_var_list(number_variables, lb=-model.infinity, name='o')
+
+
+def maximize(model, variable):
+    model.maximize(variable)
+    model.solve()
+    objective = model.solution.get_objective_value()
+    model.remove_objective()
+    return objective
+
+
+def minimize(model, variable):
+    model.minimize(variable)
+    model.solve()
+    objective = model.solution.get_objective_value()
+    model.remove_objective()
+    return objective
