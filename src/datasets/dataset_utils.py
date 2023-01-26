@@ -28,8 +28,10 @@ def save_dataset(x, y, csv_path):
     csv.to_csv(csv_path, index=False)
 
 
-def read_dataset(csv_path):
+def read_dataset(csv_path, split=False):
     df = pd.read_csv(csv_path)
+    if not split:
+        return df
     x = df.iloc[:, 1:-1]
     y = df.iloc[:, -1]
     return x, y
