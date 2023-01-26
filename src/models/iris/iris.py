@@ -11,8 +11,8 @@ from src.models.model_utils import get_model_path
 
 
 def main():
-    x_train, y_train = read_dataset(get_dataset_path('iris', 'train.csv'))
-    x_val, y_val = read_dataset(get_dataset_path('iris', 'validation.csv'))
+    x_train, y_train = read_dataset(get_dataset_path('iris', 'train.csv'), split=True)
+    x_val, y_val = read_dataset(get_dataset_path('iris', 'validation.csv'), split=True)
     n_classes = 3
     n_hidden_layers = 4
     n_neurons = 16
