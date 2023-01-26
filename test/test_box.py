@@ -1,6 +1,6 @@
 import unittest
 from numpy.testing import assert_array_equal
-from src.box import box_fix_input_bounds, box_forward, box_check_solution
+from src.explication.box import box_fix_input_bounds, box_forward, box_check_solution
 
 
 class TestBox(unittest.TestCase):
