@@ -1,6 +1,6 @@
 import numpy as np
 from docplex.mp.model import Model
-from solver_utils import maximize, minimize
+from src.solver.solver_utils import maximize, minimize
 
 
 def build_tjeng_network(layers, variables):
