@@ -20,7 +20,8 @@ class TestSolverUtils(unittest.TestCase):
     def test_get_input_variables(self):
         domain = ['I', 'C', 'B']
         bounds = [[18, 20], [58.0, 89.5], [0, 1]]
-        input_variables = get_input_variables(domain, bounds)
+        mdl = Model()
+        input_variables = get_input_variables(mdl, domain, bounds)
         self.assertTrue(input_variables[0].is_integer())
         self.assertEqual(input_variables[0].name, 'x_0')
         self.assertEqual(input_variables[0].lb, bounds[0][0])
@@ -36,43 +37,44 @@ class TestSolverUtils(unittest.TestCase):
 
     def test_get_intermediate_variables(self):
         number_variables = 3
-        intermediate_variables = get_intermediate_variables(1, number_variables)
-        infinity = Model().infinity
+        mdl = Model()
+        intermediate_variables = get_intermediate_variables(mdl, 1, number_variables)
         self.assertEqual(len(intermediate_variables), number_variables)
         self.assertTrue(intermediate_variables[0].is_continuous())
         self.assertEqual(intermediate_variables[0].name, 'y_1_0')
         self.assertEqual(intermediate_variables[0].lb, 0)
-        self.assertEqual(intermediate_variables[0].ub, infinity)
+        self.assertEqual(intermediate_variables[0].ub, mdl.infinity)
         self.assertTrue(intermediate_variables[1].is_continuous())
         self.assertEqual(intermediate_variables[1].name, 'y_1_1')
         self.assertEqual(intermediate_variables[1].lb, 0)
-        self.assertEqual(intermediate_variables[1].ub, infinity)
+        self.assertEqual(intermediate_variables[1].ub, mdl.infinity)
         self.assertTrue(intermediate_variables[2].is_continuous())
         self.assertEqual(intermediate_variables[2].name, 'y_1_2')
         self.assertEqual(intermediate_variables[2].lb, 0)
-        self.assertEqual(intermediate_variables[2].ub, infinity)
+        self.assertEqual(intermediate_variables[2].ub, mdl.infinity)
 
     def test_get_auxiliary_variables(self):
         number_variables = 3
-        auxiliary_variables = get_auxiliary_variables(1, number_variables)
-        infinity = Model().infinity
+        mdl = Model()
+        auxiliary_variables = get_auxiliary_variables(mdl, 1, number_variables)
         self.assertEqual(len(auxiliary_variables), number_variables)
         self.assertTrue(auxiliary_variables[0].is_continuous())
         self.assertEqual(auxiliary_variables[0].name, 's_1_0')
         self.assertEqual(auxiliary_variables[0].lb, 0)
-        self.assertEqual(auxiliary_variables[0].ub, infinity)
+        self.assertEqual(auxiliary_variables[0].ub, mdl.infinity)
         self.assertTrue(auxiliary_variables[1].is_continuous())
         self.assertEqual(auxiliary_variables[1].name, 's_1_1')
         self.assertEqual(auxiliary_variables[1].lb, 0)
-        self.assertEqual(auxiliary_variables[1].ub, infinity)
+        self.assertEqual(auxiliary_variables[1].ub, mdl.infinity)
         self.assertTrue(auxiliary_variables[2].is_continuous())
         self.assertEqual(auxiliary_variables[2].name, 's_1_2')
         self.assertEqual(auxiliary_variables[2].lb, 0)
-        self.assertEqual(auxiliary_variables[2].ub, infinity)
+        self.assertEqual(auxiliary_variables[2].ub, mdl.infinity)
 
     def test_get_decision_variables(self):
         number_variables = 3
-        decision_variables = get_decision_variables(1, number_variables)
+        mdl = Model()
+        decision_variables = get_decision_variables(mdl, 1, number_variables)
         self.assertEqual(len(decision_variables), number_variables)
         self.assertTrue(decision_variables[0].is_binary())
         self.assertEqual(decision_variables[0].name, 'a_1_0')
@@ -89,21 +91,21 @@ class TestSolverUtils(unittest.TestCase):
 
     def test_get_output_variables(self):
         number_variables = 3
-        output_variables = get_output_variables(number_variables)
-        infinity = Model().infinity
+        mdl = Model()
+        output_variables = get_output_variables(mdl, number_variables)
         self.assertEqual(len(output_variables), number_variables)
         self.assertTrue(output_variables[0].is_continuous())
         self.assertEqual(output_variables[0].name, 'o_0')
-        self.assertEqual(output_variables[0].lb, -infinity)
-        self.assertEqual(output_variables[0].ub, infinity)
+        self.assertEqual(output_variables[0].lb, -mdl.infinity)
+        self.assertEqual(output_variables[0].ub, mdl.infinity)
         self.assertTrue(output_variables[1].is_continuous())
         self.assertEqual(output_variables[1].name, 'o_1')
-        self.assertEqual(output_variables[1].lb, -infinity)
-        self.assertEqual(output_variables[1].ub, infinity)
+        self.assertEqual(output_variables[1].lb, -mdl.infinity)
+        self.assertEqual(output_variables[1].ub, mdl.infinity)
         self.assertTrue(output_variables[2].is_continuous())
         self.assertEqual(output_variables[2].name, 'o_2')
-        self.assertEqual(output_variables[2].lb, -infinity)
-        self.assertEqual(output_variables[2].ub, infinity)
+        self.assertEqual(output_variables[2].lb, -mdl.infinity)
+        self.assertEqual(output_variables[2].ub, mdl.infinity)
 
 
 if __name__ == '__main__':

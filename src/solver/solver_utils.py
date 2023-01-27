@@ -1,5 +1,4 @@
 import numpy as np
-from docplex.mp.model import Model
 
 
 def get_input_domain_and_bounds(dataframe):
@@ -19,52 +18,47 @@ def get_input_domain_and_bounds(dataframe):
     return domain, bounds
 
 
-def get_input_variables(input_domain, input_bounds):
-    with Model() as model:
-        input_variables = []
-        for index, (domain, bounds) in enumerate(zip(input_domain, input_bounds)):
-            lower_bound, upper_bound = bounds
-            name = f'x_{index}'
-            if domain == 'C':
-                input_variables.append(model.continuous_var(lb=lower_bound, ub=upper_bound, name=name))
-            elif domain == 'I':
-                input_variables.append(model.integer_var(lb=lower_bound, ub=upper_bound, name=name))
-            else:
-                input_variables.append(model.binary_var(name=name))
-        return input_variables
+def get_input_variables(mdl, input_domain, input_bounds):
+    input_variables = []
+    for index, (domain, bounds) in enumerate(zip(input_domain, input_bounds)):
+        lower_bound, upper_bound = bounds
+        name = f'x_{index}'
+        if domain == 'C':
+            input_variables.append(mdl.continuous_var(lb=lower_bound, ub=upper_bound, name=name))
+        elif domain == 'I':
+            input_variables.append(mdl.integer_var(lb=lower_bound, ub=upper_bound, name=name))
+        else:
+            input_variables.append(mdl.binary_var(name=name))
+    return input_variables
 
 
-def get_intermediate_variables(layer_index, number_variables):
-    with Model() as model:
-        return model.continuous_var_list(number_variables, lb=0, name='y', key_format=f'_{layer_index}_%s')
+def get_intermediate_variables(mdl, layer_index, number_variables):
+    return mdl.continuous_var_list(number_variables, lb=0, name='y', key_format=f'_{layer_index}_%s')
 
 
-def get_auxiliary_variables(layer_index, number_variables):
-    with Model() as model:
-        return model.continuous_var_list(number_variables, lb=0, name='s', key_format=f'_{layer_index}_%s')
+def get_auxiliary_variables(mdl, layer_index, number_variables):
+    return mdl.continuous_var_list(number_variables, lb=0, name='s', key_format=f'_{layer_index}_%s')
 
 
-def get_decision_variables(layer_index, number_variables):
-    with Model() as model:
-        return model.binary_var_list(number_variables, name='a', key_format=f'_{layer_index}_%s')
+def get_decision_variables(mdl, layer_index, number_variables):
+    return mdl.binary_var_list(number_variables, name='a', key_format=f'_{layer_index}_%s')
 
 
-def get_output_variables(number_variables):
-    with Model() as model:
-        return model.continuous_var_list(number_variables, lb=-model.infinity, name='o')
+def get_output_variables(mdl, number_variables):
+    return mdl.continuous_var_list(number_variables, lb=-mdl.infinity, name='o')
 
 
-def maximize(model, variable):
-    model.maximize(variable)
-    model.solve()
-    objective = model.solution.get_objective_value()
-    model.remove_objective()
+def maximize(mdl, variable):
+    mdl.maximize(variable)
+    mdl.solve()
+    objective = mdl.solution.get_objective_value()
+    mdl.remove_objective()
     return objective
 
 
-def minimize(model, variable):
-    model.minimize(variable)
-    model.solve()
-    objective = model.solution.get_objective_value()
-    model.remove_objective()
+def minimize(mdl, variable):
+    mdl.minimize(variable)
+    mdl.solve()
+    objective = mdl.solution.get_objective_value()
+    mdl.remove_objective()
     return objective
