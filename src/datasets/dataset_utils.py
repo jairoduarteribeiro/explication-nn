@@ -32,6 +32,6 @@ def read_dataset(csv_path, split=False):
     df = pd.read_csv(csv_path)
     if not split:
         return df
-    x = df.iloc[:, 1:-1]
+    x = df.iloc[:, :-1]
     y = df.iloc[:, -1]
     return x, y
