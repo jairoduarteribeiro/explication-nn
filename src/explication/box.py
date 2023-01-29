@@ -27,3 +27,12 @@ def box_check_solution(output_bounds, network_output):
     output_bounds = np.delete(output_bounds, network_output, axis=0)
     max_upper_bound = np.max(output_bounds, axis=0)[1]
     return lower_bound > max_upper_bound
+
+
+def box_has_solution(bounds, layers, network_output):
+    for layer_index, layer in enumerate(layers):
+        weights = layer.get_weights()[0].T
+        biases = layer.get_weights()[1]
+        bounds = box_forward(bounds, weights, biases) if layer_index != len(layers) - 1 \
+            else box_forward(bounds, weights, biases, apply_relu=False)
+    return box_check_solution(bounds, network_output)
