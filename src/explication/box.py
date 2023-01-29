@@ -1,12 +1,12 @@
 import numpy as np
 
 
-def box_fix_input_bounds(input_bounds, network_inputs, input_mask):
+def box_relax_input_bounds(network_inputs, input_bounds, input_mask):
+    input_bounds = np.array(input_bounds)
     network_inputs = np.reshape(network_inputs, (-1, 1))
-    network_inputs = np.repeat(network_inputs, 2, axis=1)
-    fixed_bounds = np.array(input_bounds)
-    fixed_bounds[input_mask] = network_inputs[input_mask]
-    return fixed_bounds
+    relaxed_bounds = np.repeat(network_inputs, 2, axis=1)
+    relaxed_bounds[input_mask] = input_bounds[input_mask]
+    return relaxed_bounds
 
 
 def box_forward(input_bounds, input_weights, input_biases, apply_relu=True):
