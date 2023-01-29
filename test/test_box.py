@@ -5,11 +5,11 @@ from src.explication.box import box_fix_input_bounds, box_forward, box_check_sol
 
 class TestBox(unittest.TestCase):
     def test_box_fix_input_bounds(self):
+        input_bounds = [[0.5, 1.5], [1.5, 2.5], [2.5, 3.5], [3.5, 4.5]]
         network_inputs = [1.0, 2.0, 3.0, 4.0]
-        input_bounds = [2.5, 3.5]
-        input_index = 2
-        fixed_bounds = box_fix_input_bounds(network_inputs, input_bounds, input_index)
-        assert_array_equal(fixed_bounds, [[1.0, 1.0], [2.0, 2.0], [2.5, 3.5], [4.0, 4.0]])
+        input_mask = [True, False, True, False]
+        fixed_bounds = box_fix_input_bounds(input_bounds, network_inputs, input_mask)
+        assert_array_equal(fixed_bounds, [[1.0, 1.0], [1.5, 2.5], [3.0, 3.0], [3.5, 4.5]])
 
     def test_box_forward_with_relu(self):
         input_bounds = [[1, 2], [3, 4]]
