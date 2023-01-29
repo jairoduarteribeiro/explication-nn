@@ -3,7 +3,7 @@ import numpy as np
 
 def box_relax_input_bounds(network_inputs, input_bounds, input_mask):
     input_bounds = np.array(input_bounds)
-    network_inputs = np.reshape(network_inputs, (-1, 1))
+    network_inputs = np.array(network_inputs).reshape((-1, 1))
     relaxed_bounds = np.repeat(network_inputs, 2, axis=1)
     relaxed_bounds[input_mask] = input_bounds[input_mask]
     return relaxed_bounds
