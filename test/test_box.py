@@ -1,6 +1,16 @@
 import unittest
+import numpy as np
 from numpy.testing import assert_array_equal
-from src.explication.box import box_relax_input_bounds, box_forward, box_check_solution
+from src.explication.box import box_relax_input_bounds, box_forward, box_check_solution, \
+    box_has_solution
+
+
+class Layer:
+    def __init__(self, weights, biases):
+        self.weights = [np.array(weights), np.array(biases)]
+
+    def get_weights(self):
+        return self.weights
 
 
 class TestBox(unittest.TestCase):
@@ -33,6 +43,19 @@ class TestBox(unittest.TestCase):
         output_bounds = [[0.1, 0.7], [0.6, 1.4], [-0.6, 0.2]]
         network_output = 1
         has_solution = box_check_solution(output_bounds, network_output)
+        self.assertFalse(has_solution)
+
+    def test_box_has_solution(self):
+        bounds = [[0.0, 0.3], [0.1, 0.4]]
+        layers = [
+            Layer(weights=[[1, 1], [1, -1]], biases=[0.0, 0.0]),
+            Layer(weights=[[1, 1], [1, -1]], biases=[0.5, -0.5])
+        ]
+        network_output = 0
+        has_solution = box_has_solution(bounds, layers, network_output)
+        self.assertTrue(has_solution)
+        bounds = [[0.0, 0.6], [0.1, 0.7]]
+        has_solution = box_has_solution(bounds, layers, network_output)
         self.assertFalse(has_solution)
 
 
