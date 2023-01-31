@@ -5,7 +5,7 @@ from keras.models import load_model
 from src.solver.milp import build_network
 from src.models.model_utils import get_model_path
 from src.datasets.dataset_utils import get_dataset_path, read_dataset
-from src.explication.explication_utils import get_minimal_explication, print_explication
+from src.explication.explication_utils import minimal_explication, print_explication
 
 
 def main():
@@ -19,9 +19,10 @@ def main():
     mdl, bounds = build_network(layers, dataframe, 'fischetti')
     for data_index, data in test_data.iterrows():
         print(f'Getting explication for data {data_index}...')
-        network_input = tf.reshape(data.iloc[:-1], (1, -1))
-        network_output = np.argmax(model.predict(network_input))
-        explanation = get_minimal_explication(mdl, bounds, 'fischetti', network_input, network_output)
+        network_input = data.iloc[:-1]
+        network_output = np.argmax(model.predict(tf.reshape(network_input, (1, -1))))
+        explanation = \
+            minimal_explication(mdl, bounds, 'fischetti', network_input, network_output, layers)
         print_explication(data_index, features, explanation)
 
 
