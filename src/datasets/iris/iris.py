@@ -16,7 +16,7 @@ def load_data(split_with_validation=False):
     return split_dataset(x, y, split_with_validation)
 
 
-if __name__ == '__main__':
+def main():
     (x_train, y_train), (x_val, y_val), (x_test, y_test) = load_data(split_with_validation=True)
     train_csv_path = get_dataset_path('iris', 'train.csv')
     validation_csv_path = get_dataset_path('iris', 'validation.csv')
@@ -24,3 +24,7 @@ if __name__ == '__main__':
     save_dataset(x_train, y_train, train_csv_path)
     save_dataset(x_val, y_val, validation_csv_path)
     save_dataset(x_test, y_test, test_csv_path)
+
+
+if __name__ == '__main__':
+    main()
