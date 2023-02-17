@@ -12,7 +12,7 @@ def main():
     train_data = read_dataset(get_dataset_path('iris', 'train.csv'))
     validation_data = read_dataset(get_dataset_path('iris', 'validation.csv'))
     test_data = read_dataset(get_dataset_path('iris', 'test.csv'))
-    features = test_data.columns[: -1]
+    features = test_data.columns[:-1]
     dataframe = pd.concat([train_data, validation_data, test_data], ignore_index=True)
     model = load_model(get_model_path('iris', 'iris.h5'))
     layers = model.layers
@@ -22,7 +22,7 @@ def main():
         network_input = data.iloc[:-1]
         network_output = np.argmax(model.predict(tf.reshape(network_input, (1, -1))))
         explanation = \
-            minimal_explication(mdl, bounds, 'fischetti', network_input, network_output, layers)
+            minimal_explication(mdl, bounds, 'fischetti', network_input, network_output, layers, use_box=True)
         print_explication(data_index, features, explanation)
 
 

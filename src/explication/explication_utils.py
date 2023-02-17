@@ -5,12 +5,10 @@ from src.explication.box import box_relax_input_bounds, box_has_solution
 
 
 def print_explication(data_index, feature_columns, explanation):
-    columns = [int(constraint.lhs.name[2:]) for constraint in explanation]
-    result = list(feature_columns[columns])
-    print(f'Explication for data {data_index}: {result}')
+    print(f'Explication for data {data_index}: {feature_columns[explanation].to_list()}')
 
 
-def minimal_explication(mdl, bounds, method, network_input, network_output, layers):
+def minimal_explication(mdl, bounds, method, network_input, network_output, layers, use_box=False):
     mdl = mdl.clone()
     number_classes = len(bounds['output'])
     variables = {
@@ -25,19 +23,20 @@ def minimal_explication(mdl, bounds, method, network_input, network_output, laye
         insert_output_constraints_fischetti(mdl, network_output, variables)
     else:
         insert_tjeng_output_constraints(mdl, bounds['output'], network_output, variables)
-    input_mask = np.zeros_like(network_input, dtype=bool)
+    relax_input_mask = np.zeros_like(network_input, dtype=bool)
     for index, constraint in enumerate(input_constraints):
         mdl.remove_constraint(constraint)
-        input_mask[index] = True
-        input_bounds = box_relax_input_bounds(network_input, bounds['input'], input_mask)
-        if box_has_solution(input_bounds, layers, network_output):
-            print(f'Feature {index} is not relevant (using box)')
-            continue
+        relax_input_mask[index] = True
+        if use_box:
+            input_bounds = box_relax_input_bounds(network_input, bounds['input'], relax_input_mask)
+            if box_has_solution(input_bounds, layers, network_output):
+                print(f'Feature {index} is not relevant (using box)')
+                continue
         mdl.solve(log_output=False)
         if mdl.solution is not None:
             mdl.add_constraint(constraint)
-            input_mask[index] = False
+            relax_input_mask[index] = False
             print(f'Feature {index} is relevant (using solver)')
             continue
         print(f'Feature {index} is not relevant (using solver)')
-    return mdl.find_matching_linear_constraints('input')
+    return ~relax_input_mask
