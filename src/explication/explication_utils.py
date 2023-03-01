@@ -14,7 +14,7 @@ def print_explication(data_index, feature_columns, explanation):
     print(f'Explication for data {data_index}: {feature_columns[explanation].to_list()}')
 
 
-def minimal_explication(mdl, bounds, method, network_input, network_output, layers, use_box=False):
+def minimal_explication(mdl, bounds, method, network_input, network_output, layers, features, use_box=False):
     mdl = mdl.clone()
     number_classes = len(bounds['output'])
     variables = {
@@ -30,21 +30,21 @@ def minimal_explication(mdl, bounds, method, network_input, network_output, laye
     else:
         insert_tjeng_output_constraints(mdl, bounds['output'], network_output, variables)
     relax_input_mask = np.zeros_like(network_input, dtype=bool)
-    for index, constraint in enumerate(input_constraints):
+    for index, (constraint, feature) in enumerate(zip(input_constraints, features)):
         mdl.remove_constraint(constraint)
         relax_input_mask[index] = True
         if use_box:
             input_bounds = box_relax_input_bounds(network_input, bounds['input'], relax_input_mask)
             if box_has_solution(input_bounds, layers, network_output):
-                print(f'Feature {index} is not relevant (using box)')
+                print(f'Feature {feature} is not relevant (using box)')
                 continue
         mdl.solve(log_output=False)
         if mdl.solution is not None:
             mdl.add_constraint(constraint)
             relax_input_mask[index] = False
-            print(f'Feature {index} is relevant (using solver)')
+            print(f'Feature {feature} is relevant (using solver)')
             continue
-        print(f'Feature {index} is not relevant (using solver)')
+        print(f'Feature {feature} is not relevant (using solver)')
     return ~relax_input_mask
 
 
@@ -65,5 +65,5 @@ def get_minimal_explication(dataset_name, method, use_box=True, number_samples=N
         network_input = data.iloc[:-1]
         network_output = np.argmax(model.predict(tf.reshape(network_input, (1, -1))))
         explanation = \
-            minimal_explication(mdl, bounds, method, network_input, network_output, layers, use_box)
+            minimal_explication(mdl, bounds, method, network_input, network_output, layers, features, use_box)
         print_explication(data_index, features, explanation)
