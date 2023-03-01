@@ -48,16 +48,19 @@ def minimal_explication(mdl, bounds, method, network_input, network_output, laye
     return ~relax_input_mask
 
 
-def get_minimal_explication(dataset_name, method, use_box=True):
+def get_minimal_explication(dataset_name, method, use_box=True, number_samples=None):
     train_data = read_dataset(get_dataset_path(dataset_name, 'train.csv'))
     validation_data = read_dataset(get_dataset_path(dataset_name, 'validation.csv'))
     test_data = read_dataset(get_dataset_path(dataset_name, 'test.csv'))
+    number_samples = len(test_data) if not number_samples or number_samples > len(test_data) else number_samples
     features = test_data.columns[:-1]
     dataframe = pd.concat([train_data, validation_data, test_data], ignore_index=True)
     model = load_model(get_model_path(dataset_name, f'{dataset_name}.h5'))
     layers = model.layers
     mdl, bounds = build_network(layers, dataframe, method)
     for data_index, data in test_data.iterrows():
+        if data_index == number_samples:
+            break
         print(f'Getting explication for data {data_index}...')
         network_input = data.iloc[:-1]
         network_output = np.argmax(model.predict(tf.reshape(network_input, (1, -1))))
