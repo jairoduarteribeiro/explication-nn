@@ -3,7 +3,7 @@ from src.models.model_utils import train
 
 def main():
     nn_params = {
-        'n_classes': 10, 'n_hidden_layers': 8, 'n_neurons': 32, 'n_epochs': 10000, 'batch_size': 8, 'patience': 100
+        'n_classes': 10, 'n_hidden_layers': 4, 'n_neurons': 16, 'n_epochs': 1000, 'batch_size': 4, 'patience': 50
     }
     train('digits', nn_params)
 
