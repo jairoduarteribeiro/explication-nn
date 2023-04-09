@@ -3,6 +3,6 @@ pandas==2.0.0
 scikit-learn==1.2.2
 tensorflow==2.12.0
 keras==2.12.0
-cplex==22.1.0.0
+cplex==22.1.1.0
 docplex==2.25.236
 matplotlib==3.7.1
