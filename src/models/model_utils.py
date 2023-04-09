@@ -33,7 +33,7 @@ def train(dataset_name, nn_params: NNParams):
     callbacks = (EarlyStopping(patience=int(nn_params.epochs * 0.05)),
                  ModelCheckpoint(filepath=get_model_path(dataset_name, f'{dataset_name}.h5'), save_best_only=True))
     start_time = time()
-    model.fit(x_train, y_train, epochs=nn_params.epochs, batch_size=nn_params.batch_size,
+    model.fit(x_train, y_train, epochs=nn_params.epochs, batch_size=nn_params.batch_size, verbose=0,
               validation_data=(x_val, y_val), callbacks=callbacks)
     end_time = time()
     print(f'Time of training: {end_time - start_time:.2f} seconds.')
