@@ -5,7 +5,7 @@ from src.datasets.dataset_utils import transform, split_dataset, load_and_save
 def load_data():
     x, y = load_iris(as_frame=True, return_X_y=True)
     x = transform(x, x.columns)
-    return split_dataset(x, y, with_validation=True)
+    return split_dataset(x, y)
 
 
 def main():
