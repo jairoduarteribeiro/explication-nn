@@ -2,12 +2,13 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from keras.models import load_model
+
 from src.datasets.dataset_utils import get_dataset_path, read_dataset
+from src.explication.box import box_relax_input_bounds, box_has_solution
 from src.models.model_utils import get_model_path
 from src.solver.fischetti import insert_output_constraints_fischetti
-from src.solver.tjeng import insert_tjeng_output_constraints
 from src.solver.milp import build_network
-from src.explication.box import box_relax_input_bounds, box_has_solution
+from src.solver.tjeng import insert_tjeng_output_constraints
 
 
 def print_explication(data_index, feature_columns, explanation):

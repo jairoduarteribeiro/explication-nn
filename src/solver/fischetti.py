@@ -1,4 +1,5 @@
 import numpy as np
+
 from src.solver.solver_utils import maximize, minimize
 
 

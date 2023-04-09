@@ -1,7 +1,8 @@
 from docplex.mp.model import Model
+
+from src.solver.fischetti import build_fischetti_network
 from src.solver.solver_utils import get_input_domain_and_bounds, get_input_variables, get_output_variables, \
     get_intermediate_variables, get_auxiliary_variables, get_decision_variables
-from src.solver.fischetti import build_fischetti_network
 from src.solver.tjeng import build_tjeng_network
 
 

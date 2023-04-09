@@ -1,7 +1,8 @@
+from os.path import join, dirname
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from os.path import join, dirname
 
 
 def get_dataset_path(*paths):

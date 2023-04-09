@@ -1,10 +1,11 @@
-from keras.models import Sequential, Model
-from keras.layers import InputLayer, Dense
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from os.path import join, dirname
-from operator import itemgetter
-from time import time
 from dataclasses import dataclass
+from os.path import join, dirname
+from time import time
+
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.layers import Dense
+from keras.models import Sequential
+
 from src.datasets.dataset_utils import get_dataset_path, read_dataset
 
 
