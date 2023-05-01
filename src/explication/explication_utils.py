@@ -12,7 +12,7 @@ from src.solver.tjeng import insert_tjeng_output_constraints
 
 
 def print_explication(data_index, feature_columns, explanation):
-    print(f'Explication for data {data_index}: {feature_columns[explanation].to_list()}')
+    print(f'Explication for data {data_index}: {np.array(feature_columns)[explanation]}')
 
 
 def minimal_explication(mdl, bounds, method, network_input, network_output, layers, features, use_box=False):
@@ -53,15 +53,14 @@ def get_minimal_explication(dataset_name, method, use_box=True, number_samples=N
     train_data = read_dataset(get_dataset_path(dataset_name, 'train.csv'))
     validation_data = read_dataset(get_dataset_path(dataset_name, 'validation.csv'))
     test_data = read_dataset(get_dataset_path(dataset_name, 'test.csv'))
-    number_samples = len(test_data) if not number_samples or number_samples > len(test_data) else number_samples
-    features = test_data.columns[:-1]
+    features = test_data.columns.values.tolist()[:-1]
     dataframe = pd.concat([train_data, validation_data, test_data], ignore_index=True)
     model = load_model(get_model_path(dataset_name, f'{dataset_name}.h5'))
     layers = model.layers
     mdl, bounds = build_network(layers, dataframe, method)
+    if number_samples:
+        test_data = test_data.head(number_samples)
     for data_index, data in test_data.iterrows():
-        if data_index == number_samples:
-            break
         print(f'Getting explication for data {data_index}...')
         network_input = data.iloc[:-1]
         network_output = np.argmax(model.predict(tf.reshape(network_input, (1, -1))))
