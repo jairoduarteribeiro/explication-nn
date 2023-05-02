@@ -39,7 +39,8 @@ def read_dataset(csv_path, split=False):
 
 def load_and_save(dataset_name, load_data_fn):
     x, y = load_data_fn(as_frame=True, return_X_y=True)
-    x = transform(x, x.columns)
+    x_columns = list(x.columns)
+    x = transform(x, x_columns)
     (x_train, y_train), (x_val, y_val), (x_test, y_test) = split_dataset(x, y)
     train_csv_path = get_dataset_path(dataset_name, 'train.csv')
     validation_csv_path = get_dataset_path(dataset_name, 'validation.csv')

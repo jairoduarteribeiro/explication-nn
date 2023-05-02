@@ -53,7 +53,7 @@ def get_minimal_explication(dataset_name, method, use_box=True, number_samples=N
     train_data = read_dataset(get_dataset_path(dataset_name, 'train.csv'))
     validation_data = read_dataset(get_dataset_path(dataset_name, 'validation.csv'))
     test_data = read_dataset(get_dataset_path(dataset_name, 'test.csv'))
-    features = test_data.columns.values.tolist()[:-1]
+    features = list(test_data.columns)[:-1]
     dataframe = pd.concat([train_data, validation_data, test_data], ignore_index=True)
     model = load_model(get_model_path(dataset_name, f'{dataset_name}.h5'))
     layers = model.layers
