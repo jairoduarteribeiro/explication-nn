@@ -12,8 +12,7 @@ class TestSolverUtils(unittest.TestCase):
         dataframe = pd.DataFrame({
             'age': [18, 19, 20],
             'weight': [65.9, 58.0, 89.5],
-            'gender': [0, 1, 0],
-            'target': [0, 1, 2]
+            'gender': [0, 1, 0]
         })
         domain, bounds = get_input_domain_and_bounds(dataframe)
         self.assertEqual(domain, ['I', 'C', 'B'])

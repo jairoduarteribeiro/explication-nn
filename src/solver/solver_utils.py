@@ -4,7 +4,8 @@ import numpy as np
 def get_input_domain_and_bounds(dataframe):
     domain = []
     bounds = []
-    for column in dataframe.columns[:-1]:
+    columns = list(dataframe.columns)
+    for column in columns:
         unique_values = dataframe[column].unique()
         if len(unique_values) == 2:
             domain.append('B')
