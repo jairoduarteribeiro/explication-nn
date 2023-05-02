@@ -2,9 +2,13 @@ from dataclasses import dataclass
 from os.path import join, dirname
 from time import time
 
+from keras.activations import relu, softmax
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers import Dense
+from keras.losses import SparseCategoricalCrossentropy
+from keras.metrics import SparseCategoricalAccuracy
 from keras.models import Sequential
+from keras.optimizers import Adam
 
 from src.datasets.dataset_utils import get_dataset_path, read_dataset
 
@@ -37,11 +41,11 @@ class NNParams:
 def _create_model(data, nn_params: NNParams):
     input_shape = (data['x_train'].shape[1],)
     model = Sequential()
-    model.add(Dense(nn_params.neurons, input_shape=input_shape, activation='relu'))
+    model.add(Dense(nn_params.neurons, input_shape=input_shape, activation=relu))
     for _ in range(1, nn_params.hidden_layers - 1):
-        model.add(Dense(nn_params.neurons, activation='relu'))
-    model.add(Dense(nn_params.classes, activation='softmax'))
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['sparse_categorical_accuracy'])
+        model.add(Dense(nn_params.neurons, activation=relu))
+    model.add(Dense(nn_params.classes, activation=softmax))
+    model.compile(optimizer=Adam(), loss=SparseCategoricalCrossentropy(), metrics=[SparseCategoricalAccuracy()])
     return model
 
 
