@@ -1,12 +1,11 @@
 from docplex.mp.model import Model
 
-from src.solver.fischetti import build_fischetti_network
 from src.solver.solver_utils import get_input_domain_and_bounds, get_input_variables, get_output_variables, \
-    get_intermediate_variables, get_auxiliary_variables, get_decision_variables
+    get_intermediate_variables, get_decision_variables
 from src.solver.tjeng import build_tjeng_network
 
 
-def build_network(layers, dataframe, method):
+def build_network(layers, dataframe):
     mdl = Model()
     x = dataframe.iloc[:, :-1]
     input_domain, input_bounds = get_input_domain_and_bounds(x)
@@ -22,12 +21,7 @@ def build_network(layers, dataframe, method):
             variables['output'] = get_output_variables(mdl, number_variables)
             break
         variables['intermediate'].append(get_intermediate_variables(mdl, layer_index, number_variables))
-        if method == 'fischetti':
-            variables['auxiliary'].append(get_auxiliary_variables(mdl, layer_index, number_variables))
         variables['decision'].append(get_decision_variables(mdl, layer_index, number_variables))
-    if method == 'fischetti':
-        mdl, output_bounds = build_fischetti_network(mdl, layers, variables)
-    else:
-        mdl, output_bounds = build_tjeng_network(mdl, layers, variables)
+    mdl, output_bounds = build_tjeng_network(mdl, layers, variables)
     bounds = {'input': input_bounds, 'output': output_bounds}
     return mdl, bounds
