@@ -16,11 +16,11 @@ class TestSolverUtils(unittest.TestCase):
         })
         domain, bounds = get_input_domain_and_bounds(dataframe)
         self.assertEqual(domain, ['I', 'C', 'B'])
-        self.assertEqual(bounds, [[18, 20], [58.0, 89.5], [0, 1]])
+        self.assertEqual(bounds, [(18, 20), (58.0, 89.5), (0, 1)])
 
     def test_get_input_variables(self):
         domain = ['I', 'C', 'B']
-        bounds = [[18, 20], [58.0, 89.5], [0, 1]]
+        bounds = [(18, 20), (58.0, 89.5), (0, 1)]
         mdl = Model()
         input_variables = get_input_variables(mdl, domain, bounds)
         self.assertTrue(input_variables[0].is_integer())
