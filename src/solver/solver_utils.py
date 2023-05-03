@@ -15,7 +15,7 @@ def get_input_domain_and_bounds(dataframe):
             domain.append('I')
         lower_bound = dataframe[column].min()
         upper_bound = dataframe[column].max()
-        bounds.append([lower_bound, upper_bound])
+        bounds.append((lower_bound, upper_bound))
     return domain, bounds
 
 

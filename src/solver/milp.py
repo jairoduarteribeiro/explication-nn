@@ -8,7 +8,8 @@ from src.solver.tjeng import build_tjeng_network
 
 def build_network(layers, dataframe, method):
     mdl = Model()
-    input_domain, input_bounds = get_input_domain_and_bounds(dataframe.iloc[:, :-1])
+    x = dataframe.iloc[:, :-1]
+    input_domain, input_bounds = get_input_domain_and_bounds(x)
     variables = {
         'input': get_input_variables(mdl, input_domain, input_bounds),
         'intermediate': [],
