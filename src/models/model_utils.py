@@ -20,12 +20,15 @@ def get_model_path(*paths):
 def _read_datasets(dataset_name):
     x_train, y_train = read_dataset(get_dataset_path(dataset_name, 'train.csv'), split=True)
     x_val, y_val = read_dataset(get_dataset_path(dataset_name, 'validation.csv'), split=True)
+    x_test, y_test = read_dataset(get_dataset_path(dataset_name, 'test.csv'), split=True)
     return {
         'name': dataset_name,
         'x_train': x_train,
         'y_train': y_train,
         'x_val': x_val,
-        'y_val': y_val
+        'y_val': y_val,
+        'x_test': x_test,
+        'y_test': y_test
     }
 
 
@@ -57,6 +60,10 @@ def _train_and_save(data, nn_params: NNParams, model):
               validation_data=(data['x_val'], data['y_val']), callbacks=callbacks)
     end_time = time()
     print(f'Time of training: {end_time - start_time:.2f} seconds.')
+    print('Evaluate on test data:')
+    results = model.evaluate(data['x_test'], data['y_test'], batch_size=nn_params.batch_size, verbose=0)
+    print(f'- Loss: {results[0]}')
+    print(f'- Accuracy: {results[1] * 100.0:.2f}%')
 
 
 def train(dataset_name, nn_params: NNParams):
