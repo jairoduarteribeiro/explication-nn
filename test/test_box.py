@@ -3,7 +3,7 @@ import unittest
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from src.explication.box import box_relax_input_bounds, box_forward, box_check_solution, \
+from src.solver.box import box_relax_input_bounds, box_forward, box_check_solution, \
     box_has_solution
 
 

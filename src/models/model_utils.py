@@ -10,26 +10,11 @@ from keras.metrics import SparseCategoricalAccuracy
 from keras.models import Sequential
 from keras.optimizers import Adam
 
-from src.datasets.dataset_utils import get_dataset_path, read_dataset
+from src.datasets.dataset_utils import read_all_datasets
 
 
 def get_model_path(*paths):
     return join(dirname(__file__), *paths)
-
-
-def _read_datasets(dataset_name):
-    x_train, y_train = read_dataset(get_dataset_path(dataset_name, 'train.csv'), split=True)
-    x_val, y_val = read_dataset(get_dataset_path(dataset_name, 'validation.csv'), split=True)
-    x_test, y_test = read_dataset(get_dataset_path(dataset_name, 'test.csv'), split=True)
-    return {
-        'name': dataset_name,
-        'x_train': x_train,
-        'y_train': y_train,
-        'x_val': x_val,
-        'y_val': y_val,
-        'x_test': x_test,
-        'y_test': y_test
-    }
 
 
 @dataclass
@@ -67,6 +52,6 @@ def _train_and_save(data, nn_params: NNParams, model):
 
 
 def train(dataset_name, nn_params: NNParams):
-    data = _read_datasets(dataset_name)
+    data = read_all_datasets(dataset_name, split=True)
     model = _create_model(data, nn_params)
     _train_and_save(data, nn_params, model)
