@@ -5,3 +5,4 @@ __pycache__
 train.csv
 test.csv
 validation.csv
+explication*.txt

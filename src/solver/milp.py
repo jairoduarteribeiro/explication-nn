@@ -14,9 +14,10 @@ def build_network(layers, dataframe):
         'intermediate': [],
         'decision': []
     }
+    last_layer = layers[-1]
     for layer_index, layer in enumerate(layers):
         number_variables = layer.get_weights()[0].shape[1]
-        if layer_index == len(layers) - 1:
+        if layer == last_layer:
             variables['output'] = get_output_variables(mdl, number_variables)
             break
         variables['intermediate'].append(get_intermediate_variables(mdl, layer_index, number_variables))
