@@ -16,42 +16,34 @@ def _transform(x, x_columns=None):
 
 
 def _split_dataset(x, y):
-    x_train, x_test, y_train, y_test = \
-        train_test_split(x, y, train_size=0.8, random_state=42, stratify=y)
-    x_val, x_test, y_val, y_test = \
-        train_test_split(x_test, y_test, test_size=0.5, random_state=42, stratify=y_test)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.8, random_state=42, stratify=y)
+    x_val, x_test, y_val, y_test = train_test_split(x_test, y_test, test_size=0.5, random_state=42, stratify=y_test)
     return (x_train, y_train), (x_val, y_val), (x_test, y_test)
 
 
 def _save_dataset(x, y, csv_path):
-    csv = pd.concat([x, y], axis=1)
+    csv = pd.concat((x, y), axis=1)
     csv.to_csv(csv_path, index=False)
 
 
 def _read_dataset(csv_path, split=False):
     df = pd.read_csv(csv_path)
-    if not split:
-        return df
-    x = df.iloc[:, :-1]
-    y = df.iloc[:, -1]
-    return x, y
+    return df if not split else (df.iloc[:, :-1], df.iloc[:, -1])
 
 
 def read_all_datasets(dataset_name, split=False):
     train = _read_dataset(get_dataset_path(dataset_name, 'train.csv'), split)
     validation = _read_dataset(get_dataset_path(dataset_name, 'validation.csv'), split)
     test = _read_dataset(get_dataset_path(dataset_name, 'test.csv'), split)
-    if split:
-        return {
-            'name': dataset_name,
-            'x_train': train[0],
-            'y_train': train[1],
-            'x_val': validation[0],
-            'y_val': validation[1],
-            'x_test': test[0],
-            'y_test': test[1]
-        }
     return {
+        'name': dataset_name,
+        'x_train': train[0],
+        'y_train': train[1],
+        'x_val': validation[0],
+        'y_val': validation[1],
+        'x_test': test[0],
+        'y_test': test[1]
+    } if split else {
         'name': dataset_name,
         'train': train,
         'val': validation,
