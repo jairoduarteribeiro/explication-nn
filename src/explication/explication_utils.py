@@ -8,6 +8,7 @@ from keras.models import load_model
 
 from src.datasets.dataset_utils import read_all_datasets
 from src.models.model_utils import get_model_path
+from src.solver.box import box_relax_input_bounds, box_has_solution
 from src.solver.milp import build_network
 from src.solver.tjeng import insert_tjeng_output_constraints
 
@@ -37,11 +38,19 @@ def _print_explication(file, data_index, explication, accumulated_time):
         file.write(f'\n- Relevant: {explication["relevant"]}')
     if explication['irrelevant'].size > 0:
         file.write(f'\n- Irrelevant: {explication["irrelevant"]}')
+    if explication['calls_box'] > 0:
+        file.write('\n\nBox results:')
+        total = explication['calls_box'] + explication['calls_solver']
+        percentage_box = 100 * explication["calls_box"] / total
+        percentage_solver = 100 * explication["calls_solver"] / total
+        file.write(f'\n- Calls to box: {explication["calls_box"]} ({percentage_box:.2f}%)')
+        file.write(f'\n- Calls to solver: {explication["calls_solver"]} ({percentage_solver:.2f}%)')
+        file.write(f'\n- Features irrelevant by box: {explication["solved_by_box"]}')
     file.write(f'\n\nTime of explication: {explication["time"]:.2f} seconds')
     file.write(f'\nTotal time: {accumulated_time:.2f} seconds\n\n')
 
 
-def _minimal_explication(mdl, bounds, network_input, network_output, features, accumulated_time):
+def _minimal_explication(mdl, bounds, network_input, network_output, layers, features, accumulated_time, use_box):
     mdl = mdl.clone(new_name='clone')
     number_classes = len(bounds['output'])
     variables = {
@@ -52,13 +61,25 @@ def _minimal_explication(mdl, bounds, network_input, network_output, features, a
         [mdl.get_var_by_name(f'x_{index}') == feature for index, feature in enumerate(network_input)], names='input')
     mdl.add_constraint(mdl.sum(variables['binary']) >= 1)
     insert_tjeng_output_constraints(mdl, bounds['output'], network_output, variables)
-    explication = {}
+    explication = {
+        'calls_box': 0,
+        'calls_solver': 0,
+        'solved_by_box': []
+    }
     explication_mask = np.ones_like(network_input, dtype=bool)
     start_time = time()
     for index, constraint in enumerate(input_constraints):
         mdl.remove_constraint(constraint)
         explication_mask[index] = False
+        if use_box:
+            relax_input_mask = ~explication_mask
+            input_bounds = box_relax_input_bounds(network_input, bounds['input'], relax_input_mask)
+            if box_has_solution(input_bounds, layers, network_output):
+                explication['calls_box'] += 1
+                explication['solved_by_box'].append(features[index])
+                continue
         mdl.solve(log_output=False)
+        explication['calls_solver'] += 1
         if mdl.solution is not None:
             mdl.add_constraint(constraint)
             explication_mask[index] = True
@@ -71,8 +92,9 @@ def _minimal_explication(mdl, bounds, network_input, network_output, features, a
     return explication, accumulated_time + time_explication
 
 
-def get_minimal_explication(dataset_name, number_samples=None):
-    with open(_get_explication_path(dataset_name, 'explication.txt'), 'w') as file:
+def get_minimal_explication(dataset_name, use_box=True, number_samples=None):
+    file_name = _get_explication_path(dataset_name, f'explication{"_with_box" if use_box else ""}.txt')
+    with open(file_name, 'w') as file:
         data = read_all_datasets(dataset_name)
         dataframe = pd.concat((data['train'], data['val'], data['test']), ignore_index=True)
         features = list(dataframe.columns)[:-1]
@@ -85,6 +107,7 @@ def get_minimal_explication(dataset_name, number_samples=None):
             network_input = test_data.iloc[:-1]
             network_output = np.argmax(model.predict(tf.reshape(network_input, (1, -1))))
             _message_getting_explication(file, features, index, network_input, network_output)
-            explication, acc_time = _minimal_explication(mdl, bounds, network_input, network_output, features, acc_time)
+            explication, acc_time = \
+                _minimal_explication(mdl, bounds, network_input, network_output, layers, features, acc_time, use_box)
             _print_explication(file, index, explication, acc_time)
         mdl.end()
