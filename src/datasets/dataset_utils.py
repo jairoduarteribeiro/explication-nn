@@ -51,8 +51,12 @@ def read_all_datasets(dataset_name, split=False):
     }
 
 
+def load_from_sklearn(sklearn_load_fn):
+    return lambda: sklearn_load_fn(return_X_y=True, as_frame=True)
+
+
 def load_and_save(dataset_name, load_data_fn):
-    x, y = load_data_fn(as_frame=True, return_X_y=True)
+    x, y = load_data_fn()
     x_columns = list(x.columns)
     x = _transform(x, x_columns)
     (x_train, y_train), (x_val, y_val), (x_test, y_test) = _split_dataset(x, y)
