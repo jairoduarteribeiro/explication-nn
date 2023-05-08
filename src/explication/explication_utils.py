@@ -26,31 +26,42 @@ def _ordinal(n: int):
 
 
 def _message_getting_explication(file, features, network_index, network_input, network_output):
-    file.write(f'Getting explication for the {_ordinal(network_index + 1)} data:')
+    file.write(f'Getting explication for the {_ordinal(network_index + 1)} data:\n')
     for feature in features:
-        file.write(f'\n- {feature} = {network_input[feature]}')
-    file.write(f'\n\nWhy does the NN produce {network_output} as output? ...\n\n')
+        file.write(f'- {feature} = {network_input[feature]}\n')
+    file.write(f'\nWhy does the NN produce {network_output} as output? ...\n\n')
 
 
-def _print_explication(file, data_index, explication, accumulated_time):
-    file.write(f'Explication for the {_ordinal(data_index + 1)} data:')
+def _print_explication(file, data_index, explication):
+    file.write(f'Explication for the {_ordinal(data_index + 1)} data:\n')
     if explication['relevant'].size > 0:
-        file.write(f'\n- Relevant: {explication["relevant"]}')
+        file.write(f'- Relevant: {explication["relevant"]}\n')
     if explication['irrelevant'].size > 0:
-        file.write(f'\n- Irrelevant: {explication["irrelevant"]}')
+        file.write(f'- Irrelevant: {explication["irrelevant"]}\n')
     if explication['calls_box'] > 0:
-        file.write('\n\nBox results:')
+        file.write('\nBox results:\n')
         total = explication['calls_box'] + explication['calls_solver']
-        percentage_box = 100 * explication["calls_box"] / total
-        percentage_solver = 100 * explication["calls_solver"] / total
-        file.write(f'\n- Calls to box: {explication["calls_box"]} ({percentage_box:.2f}%)')
-        file.write(f'\n- Calls to solver: {explication["calls_solver"]} ({percentage_solver:.2f}%)')
-        file.write(f'\n- Features irrelevant by box: {explication["solved_by_box"]}')
-    file.write(f'\n\nTime of explication: {explication["time"]:.2f} seconds')
-    file.write(f'\nTotal time: {accumulated_time:.2f} seconds\n\n')
+        percentage_box = 100 * explication['calls_box'] / total
+        percentage_solver = 100 * explication['calls_solver'] / total
+        file.write(f'- Calls to box: {explication["calls_box"]} ({percentage_box:.2f}%)\n')
+        file.write(f'- Calls to solver: {explication["calls_solver"]} ({percentage_solver:.2f}%)\n')
+        file.write(f'- Features irrelevant by box: {explication["solved_by_box"]}\n')
+    file.write(f'\nTime of explication: {explication["time"]:.2f} seconds\n')
+    file.write(f'--------------------------------------------------------------------------------\n')
 
 
-def _minimal_explication(mdl, bounds, network_input, network_output, layers, features, accumulated_time, use_box):
+def _print_final_metrics(file, acc_metrics):
+    file.write(f'FINAL METRICS:\n')
+    file.write(f'- Total time: {acc_metrics["total_time"]:.2f} seconds\n')
+    if acc_metrics['total_calls_box'] > 0:
+        total_calls = acc_metrics['total_calls_box'] + acc_metrics['total_calls_solver']
+        percentage_box = 100 * acc_metrics['total_calls_box'] / total_calls
+        percentage_solver = 100 * acc_metrics['total_calls_solver'] / total_calls
+        file.write(f'- Total calls to box: {acc_metrics["total_calls_box"]} ({percentage_box:.2f})%\n')
+        file.write(f'- Total calls to solver: {acc_metrics["total_calls_solver"]} ({percentage_solver:.2f})%\n')
+
+
+def _minimal_explication(mdl, bounds, network_input, network_output, layers, features, acc_metrics, use_box):
     mdl = mdl.clone(new_name='clone')
     number_classes = len(bounds['output'])
     variables = {
@@ -89,7 +100,10 @@ def _minimal_explication(mdl, bounds, network_input, network_output, layers, fea
     explication['relevant'] = np.array(features)[explication_mask]
     explication['irrelevant'] = np.array(features)[~explication_mask]
     explication['time'] = time_explication
-    return explication, accumulated_time + time_explication
+    acc_metrics['total_calls_box'] += explication['calls_box']
+    acc_metrics['total_calls_solver'] += explication['calls_solver']
+    acc_metrics['total_time'] += explication['time']
+    return explication
 
 
 def get_minimal_explication(dataset_name, use_box=True, number_samples=None):
@@ -102,12 +116,17 @@ def get_minimal_explication(dataset_name, use_box=True, number_samples=None):
         layers = model.layers
         mdl, bounds = build_network(layers, dataframe)
         test = data['test'].head(number_samples) if number_samples else data['test']
-        acc_time = 0
+        acc_metrics = {
+            'total_time': 0,
+            'total_calls_box': 0,
+            'total_calls_solver': 0
+        }
         for index, test_data in test.iterrows():
             network_input = test_data.iloc[:-1]
             network_output = np.argmax(model.predict(tf.reshape(network_input, (1, -1))))
             _message_getting_explication(file, features, index, network_input, network_output)
-            explication, acc_time = \
-                _minimal_explication(mdl, bounds, network_input, network_output, layers, features, acc_time, use_box)
-            _print_explication(file, index, explication, acc_time)
+            explication = \
+                _minimal_explication(mdl, bounds, network_input, network_output, layers, features, acc_metrics, use_box)
+            _print_explication(file, index, explication)
+        _print_final_metrics(file, acc_metrics)
         mdl.end()
