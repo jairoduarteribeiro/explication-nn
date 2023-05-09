@@ -106,7 +106,7 @@ def _minimal_explication(mdl, bounds, network_input, network_output, layers, fea
     return explication
 
 
-def get_minimal_explication(dataset_name, use_box=True, number_samples=None):
+def get_minimal_explication(dataset_name, use_box=True, number_samples=None, verbose=False):
     file_name = _get_explication_path(dataset_name, f'explication{"_with_box" if use_box else ""}.txt')
     with open(file_name, 'w') as file:
         data = read_all_datasets(dataset_name)
@@ -124,9 +124,11 @@ def get_minimal_explication(dataset_name, use_box=True, number_samples=None):
         for index, test_data in test.iterrows():
             network_input = test_data.iloc[:-1]
             network_output = np.argmax(model.predict(tf.reshape(network_input, (1, -1))))
-            _message_getting_explication(file, features, index, network_input, network_output)
+            if verbose:
+                _message_getting_explication(file, features, index, network_input, network_output)
             explication = \
                 _minimal_explication(mdl, bounds, network_input, network_output, layers, features, acc_metrics, use_box)
-            _print_explication(file, index, explication)
+            if verbose:
+                _print_explication(file, index, explication)
         _print_final_metrics(file, acc_metrics)
         mdl.end()
